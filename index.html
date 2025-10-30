@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MB & Nath — Nosso Cantinho</title>
+  <meta name="description" content="Site pessoal interativo do casal MB & Nath — joguem, ganhem moedas e troquem por recompensas!">
+  <style>
+    :root{
+      --bg1: #1a0026; /* muito escuro */
+      --bg2: #30003f; /* roxo profundo */
+      --accent: #b76cff; /* roxo brilhante */
+      --glass: rgba(255,255,255,0.06);
+      --card: rgba(255,255,255,0.04);
+      --text: #f5eefc;
+      --muted: #cdbbe6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(183,108,255,0.12), transparent),
+                  linear-gradient(120deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      padding:24px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .app{width:100%;max-width:980px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .badge{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),#6f2bd6);box-shadow:0 6px 20px rgba(103,45,160,0.25);font-weight:700}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .card{background:var(--card);backdrop-filter:blur(6px);padding:18px;border-radius:14px;box-shadow:0 8px 30px rgba(10,0,20,0.4)}
+
+    .grid{display:grid;grid-template-columns:300px 1fr;gap:18px}
+
+    /* sidebar */
+    .sidebar{display:flex;flex-direction:column;gap:12px}
+    .profile-switch{display:flex;gap:8px}
+    .profile-btn{flex:1;padding:10px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer}
+    .profile-btn.active{background:linear-gradient(90deg, rgba(183,108,255,0.14), rgba(111,43,214,0.08));color:var(--text);border:1px solid rgba(183,108,255,0.22)}
+
+    .saldo{margin-top:8px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:space-between}
+    .saldo .value{font-size:28px;font-weight:700;color:var(--accent)}
+
+    .actions{display:flex;gap:8px;margin-top:10px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:var(--accent);color:#18001a;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+    /* main */
+    .main{display:flex;flex-direction:column;gap:14px}
+    .play-area{display:flex;align-items:center;justify-content:center;padding:24px;border-radius:12px}
+
+    .heart{width:140px;height:140px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03), rgba(0,0,0,0));box-shadow:inset 0 2px 8px rgba(255,255,255,0.02), 0 8px 30px rgba(103,45,160,0.18);cursor:pointer;transition:transform 160ms ease}
+    .heart:active{transform:scale(0.98)}
+    .heart svg{filter:drop-shadow(0 8px 20px rgba(183,108,255,0.16))}
+    .last-win{font-size:14px;color:var(--muted);text-align:center;margin-top:8px}
+
+    .rewards{display:flex;flex-direction:column;gap:10px}
+    .reward{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+    .reward small{color:var(--muted)}
+    .reward button{padding:8px 10px;border-radius:8px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+
+    .history{max-height:160px;overflow:auto;padding:8px;border-radius:8px;background:rgba(0,0,0,0.12);font-size:13px}
+
+    footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* coin animation */
+    .coin{position:fixed;pointer-events:none;font-size:22px;animation:floatUp 1200ms ease forwards}
+    @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-140px) scale(1.6);opacity:0}}
+
+    @media (max-width:820px){
+      .grid{grid-template-columns:1fr;}
+      .sidebar{order:2}
+      .main{order:1}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="badge">💜</div>
+        <div>
+          <h1>MB &amp; Nath — Nosso Cantinho</h1>
+          <p class="lead">Joguem, coleccionem moedas e troquem por mimos — cada perfil com seu saldo 🎮🪙</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid card">
+      <aside class="sidebar">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong>Entrar como</strong>
+            <small style="color:var(--muted)">Tema: Roxo brilhante</small>
+          </div>
+          <div class="profile-switch">
+            <button class="profile-btn" id="btn-mb">MB</button>
+            <button class="profile-btn" id="btn-nath">Nath</button>
+          </div>
+        </div>
+
+        <div class="saldo">
+          <div>
+            <div style="font-size:13px;color:var(--muted)">Saldo</div>
+            <div class="value" id="saldo">0</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px" id="days">Dias juntos: —</div>
+          </div>
+          <div style="text-align:right">
+            <button class="btn" id="btn-reset">Reset</button>
+            <button class="btn ghost" id="btn-switch">Trocar</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <strong style="display:block;margin-bottom:6px">Ações</strong>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn" id="btn-play-small">Jogar ❤️</button>
+            <button class="btn ghost" id="btn-sobre">Nossa história</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <strong style="display:block;margin-bottom:6px">Histórico</strong>
+          <div class="history" id="history">Nenhuma acção ainda.
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="play-area card">
+          <div style="text-align:center;width:100%">
+            <div class="heart" id="heart" title="Clique para ganhar moedas">
+              <!-- heart SVG -->
+              <svg width="86" height="86" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21s-7-4.35-9-6.37C1.31 12.73 2.2 9 5.2 7.2 7.04 6.09 9.4 6.5 11 8.06 12.6 6.5 14.96 6.09 16.8 7.2c3 1.8 3.89 5.53 2.2 7.43C19 16.65 12 21 12 21z" fill="url(#g)"/>
+                <defs>
+                  <linearGradient id="g" x1="0" x2="1">
+                    <stop offset="0" stop-color="#ffd3ff" stop-opacity="0.9"/>
+                    <stop offset="1" stop-color="#b76cff" stop-opacity="1"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            <div class="last-win" id="last-win">Clique no coração para ganhar entre 1 e 10 moedas!</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0">Loja de Recompensas</h3>
+          <div class="rewards">
+            <div class="reward">
+              <div>
+                <strong>100 moedas</strong>
+                <div><small>Jantar especial preparado por quem ganhar</small></div>
+              </div>
+              <div>
+                <button data-cost="100" class="buy">Trocar</button>
+              </div>
+            </div>
+
+            <div class="reward">
+              <div>
+                <strong>50 moedas</strong>
+                <div><small>Escolher o filme da noite</small></div>
+              </div>
+              <div>
+                <button data-cost="50" class="buy">Trocar</button>
+              </div>
+            </div>
+
+            <div class="reward">
+              <div>
+                <strong>200 moedas</strong>
+                <div><small>Passeio surpresa</small></div>
+              </div>
+              <div>
+                <button data-cost="200" class="buy">Trocar</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <footer>
+          Feito com 💜 para MB &amp; Nath — código entregue como modelo (abra o ficheiro `index.html` localmente).
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // --- Config ---
+    const profiles = ['mb','nath'];
+    const defaultProfile = 'mb';
+    const minGain = 1;
+    const maxGain = 10;
+
+    // --- DOM ---
+    const btnMB = document.getElementById('btn-mb');
+    const btnNath = document.getElementById('btn-nath');
+    const saldoEl = document.getElementById('saldo');
+    const heart = document.getElementById('heart');
+    const lastWin = document.getElementById('last-win');
+    const historyEl = document.getElementById('history');
+    const buys = document.querySelectorAll('.buy');
+    const btnReset = document.getElementById('btn-reset');
+    const btnSwitch = document.getElementById('btn-switch');
+    const btnPlaySmall = document.getElementById('btn-play-small');
+    const daysEl = document.getElementById('days');
+
+    // --- State ---
+    let current = localStorage.getItem('couple_current') || defaultProfile;
+
+    // initialize balances if not present
+    profiles.forEach(p => {
+      if (localStorage.getItem(`coins_${p}`) === null) localStorage.setItem(`coins_${p}`, '0');
+    });
+
+    // sample "days together" calc — se quiser personalizar, altere a data abaixo
+    const metDate = new Date(localStorage.getItem('couple_met_date') || '2024-01-01');
+    function calcDays(){
+      const today = new Date();
+      const days = Math.floor((today - metDate) / (1000*60*60*24));
+      daysEl.textContent = 'Dias juntos: ' + (isNaN(days)? '—' : days);
+    }
+    calcDays();
+
+    // --- helpers ---
+    function setActiveButton(){
+      btnMB.classList.toggle('active', current==='mb');
+      btnNath.classList.toggle('active', current==='nath');
+    }
+
+    function getCoins(){
+      return parseInt(localStorage.getItem(`coins_${current}`) || '0',10);
+    }
+    function setCoins(v){
+      localStorage.setItem(`coins_${current}`, String(v));
+      updateUI();
+    }
+
+    function updateUI(){
+      saldoEl.textContent = getCoins();
+      setActiveButton();
+      // update history (simple)
+      const raw = localStorage.getItem(`history_${current}`) || '';
+      historyEl.textContent = raw || 'Nenhuma acção ainda.';
+    }
+
+    function addHistory(txt){
+      const now = new Date().toLocaleString();
+      const key = `history_${current}`;
+      const prev = localStorage.getItem(key) || '';
+      const line = `[${now}] ${txt}\n`;
+      localStorage.setItem(key, line + prev);
+      updateUI();
+    }
+
+    function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+    function spawnCoin(x,y,emoji){
+      const el = document.createElement('div');
+      el.className = 'coin';
+      el.style.left = (x-10) + 'px';
+      el.style.top = (y-10) + 'px';
+      el.textContent = emoji || '🪙';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),1300);
+    }
+
+    // --- actions ---
+    btnMB.addEventListener('click',()=>{ current='mb'; localStorage.setItem('couple_current',current); updateUI(); });
+    btnNath.addEventListener('click',()=>{ current='nath'; localStorage.setItem('couple_current',current); updateUI(); });
+
+    heart.addEventListener('click',(e)=>{
+      const gain = randInt(minGain,maxGain);
+      const newVal = getCoins() + gain;
+      setCoins(newVal);
+      lastWin.textContent = `Você ganhou ${gain} moedas! ✨`;
+      addHistory(`Ganhou ${gain} moedas`);
+
+      // spawn a few coin emojis around click
+      for(let i=0;i<3;i++){
+        const rx = e.clientX + randInt(-30,30);
+        const ry = e.clientY + randInt(-10,40);
+        spawnCoin(rx,ry,'🪙');
+      }
+    });
+
+    btnPlaySmall.addEventListener('click',()=>heart.click());
+
+    buys.forEach(b=>{
+      b.addEventListener('click',()=>{
+        const cost = parseInt(b.dataset.cost,10);
+        const have = getCoins();
+        if(have >= cost){
+          setCoins(have-cost);
+          addHistory(`Trocou ${cost} moedas por: ${b.parentElement.previousElementSibling.querySelector('small').textContent}`);
+          lastWin.textContent = `Recompensa resgatada! -${cost} moedas`;
+          // confetti of hearts/coins
+          for(let i=0;i<6;i++){ spawnCoin(window.innerWidth/2 + randInt(-200,200), window.innerHeight/2 + randInt(-100,200), i%2? '💜':'🪙'); }
+        } else {
+          lastWin.textContent = `Faltam ${cost-have} moedas para essa recompensa.`;
+        }
+      })
+    })
+
+    btnReset.addEventListener('click',()=>{
+      if(confirm('Resetar o saldo deste perfil?')){
+        localStorage.setItem(`coins_${current}`,'0');
+        localStorage.setItem(`history_${current}`, '');
+        updateUI();
+      }
+    });
+
+    btnSwitch.addEventListener('click',()=>{
+      current = (current==='mb')? 'nath' : 'mb';
+      localStorage.setItem('couple_current',current);
+      updateUI();
+    });
+
+    // init
+    updateUI();
+
+    // accessibility: keyboard
+    document.addEventListener('keydown',(e)=>{
+      if(e.key === ' '){ e.preventDefault(); heart.click(); }
+    });
+
+  </script>
+</body>
+</html>
